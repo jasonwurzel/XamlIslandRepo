@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <LangVersion>preview</LangVersion>
+    <StartupObject>WpfApp.Program</StartupObject>
+    <ApplicationManifest>app1.manifest</ApplicationManifest>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <ProgramFiles32 Condition="Exists('$(PROGRAMFILES) (x86)')">$(PROGRAMFILES) (x86)</ProgramFiles32>
+    <ProgramFiles32 Condition="$(ProgramFiles32) == ''">$(PROGRAMFILES)</ProgramFiles32>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.XamlHost" Version="6.0.0-dk.5" />
+    <Reference Include="Windows">
+      <HintPath>$(ProgramFiles32)\Windows Kits\10\UnionMetadata\10.0.18342.0\Windows.WinMD</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <IslandLibrary>UwpLib</IslandLibrary>
+    <IslandPath Condition="$(IslandPath) == ''">..\$(IslandLibrary)</IslandPath>
+    <IslandDirectoryName>$([System.IO.Path]::GetFileName($(IslandPath.TrimEnd('\'))))</IslandDirectoryName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <IslandLibraryContent Include="$(IslandPath)\**\*.*" Exclude="$(IslandPath)\**\*.user;$(IslandPath)\**\*.csproj;$(IslandPath)\**\*.cs;$(IslandPath)\**\*.xaml;$(IslandPath)\**\obj\**;$(IslandPath)\**\bin\**" />
+    <IslandLibraryContent Include="$(IslandPath)\obj\$(Configuration)\**\*.xbf" />
+    <IslandLibraryContent Include="$(IslandPath)\obj\$(Configuration)\$(IslandLibrary).xr.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(IslandPath)\$(IslandLibrary).csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <Reference Include="$(IslandLibrary)">
+      <HintPath>$(IslandPath)\obj\$(Configuration)\$(IslandLibrary).dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="@(IslandLibraryCompile)">
+      <Link>$(IslandDirectoryName)\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+    <None Include="@(IslandLibraryContent)">
+      <Link>$(IslandDirectoryName)\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="@(PackagesContent)">
+      <Link>%(RecursiveDir)\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
