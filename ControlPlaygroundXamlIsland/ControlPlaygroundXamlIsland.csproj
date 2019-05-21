@@ -241,6 +241,7 @@
       $(DesktopBridgePublishItemsOutputGroupDependsOn);
       __IncludeProjectDepsFile
     </DesktopBridgePublishItemsOutputGroupDependsOn>
+    <ApplicationManifest>app1.manifest</ApplicationManifest>
   </PropertyGroup>
   <Target Name="__IncludeProjectDepsFile">
     <ItemGroup>
