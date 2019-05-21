@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using Windows.UI.Xaml.Controls;
+using ControlPlaygroundUwpLib;
 
 namespace UwpLib
 {
