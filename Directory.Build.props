@@ -1,0 +1,14 @@
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>preview</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsAsErrors />
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <WindowsTargetBuild>18362</WindowsTargetBuild>
+    <WindowsMinBuild>18362</WindowsMinBuild>
+  </PropertyGroup>
+  
+</Project>

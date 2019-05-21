@@ -1,0 +1,253 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <UseWPF>true</UseWPF>
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <Platforms>x64</Platforms>
+    <StartupObject>WpfApp.Program</StartupObject>
+  </PropertyGroup>
+
+  <!-- Always determine a runtime to make things (paths) deterministic -->
+  <PropertyGroup Condition="'$(RuntimeIdentifier)' == ''">
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <IslandLibrary>ControlPlaygroundUwpLib</IslandLibrary>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Toolkit.Wpf.UI.XamlHost" Version="6.0.0-preview5" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <IslandPath Condition="$(IslandPath) == ''">..\$(IslandLibrary)</IslandPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="@(IslandLibraryCompile)">
+      <Link>$(IslandLibrary)\%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <IslandLibraryContent Include="$(IslandPath)\**\*.*" Exclude="$(IslandPath)\**\*.user;$(IslandPath)\**\*.csproj;$(IslandPath)\**\*.cs;$(IslandPath)\**\*.xaml;$(IslandPath)\**\obj\**;$(IslandPath)\**\bin\**" />
+    <IslandLibraryContent Include="$(IslandPath)\obj\x64\$(Configuration)\**\*.xbf" />
+    <IslandLibraryContent Include="$(IslandPath)\obj\x64\$(Configuration)\$(IslandLibrary).xr.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(IslandPath)\$(IslandLibrary).csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <Reference Include="$(IslandLibrary)">
+      <HintPath>$(IslandPath)\obj\x64\$(Configuration)\$(IslandLibrary).dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    
+    <!-- VC++ Runtime -->
+    <PackageReference Include="Microsoft.VCRTForwarders.140" Version="1.0.0-rc" />
+
+    <!-- PackageReference for packages without a dedicated UAP lib (no TFM uap... but netstandard) or packages that alrady handle XAML islands with TFM netcoreapp -->
+    <PackageReference Include="Microsoft.Toolkit.Parsers" Version="5.1.1" />
+    <PackageReference Include="ColorCode.Core" Version="2.0.6" />
+    <!-- Assembly references when package doesn't work (selects wrong TFM) -->
+    
+    <!-- needed for WinRT Component -->
+    <ReferenceCopyLocalPaths Include="$(NuGetPackageRoot)CompositionProToolkit\0.9.1\runtimes\win10-x64\native\CompositionDeviceHelper.dll" />
+
+    <Reference Include="Microsoft.Toolkit.Uwp">
+      <HintPath>$(NuGetPackageRoot)Microsoft.Toolkit.Uwp\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Microsoft.Toolkit.Uwp.UI">
+      <HintPath>$(NuGetPackageRoot)Microsoft.Toolkit.Uwp.UI\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Microsoft.Toolkit.Uwp.UI.Animations">
+      <HintPath>$(NuGetPackageRoot)Microsoft.Toolkit.Uwp.UI.Animations\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Animations.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Microsoft.Toolkit.Uwp.UI.Controls">
+      <HintPath>$(NuGetPackageRoot)Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls.dll</HintPath>
+    </Reference>
+
+    <Reference Include="Microsoft.UI.Xaml">
+      <HintPath>$(NuGetPackageRoot)microsoft.ui.xaml\2.1.190218001-prerelease\lib\uap10.0\Microsoft.UI.Xaml.winmd</HintPath>
+      <Implementation>Microsoft.UI.Xaml.dll</Implementation>
+    </Reference>
+    <ReferenceCopyLocalPaths Include="$(NuGetPackageRoot)microsoft.ui.xaml\2.1.190218001-prerelease\runtimes\win10-x64\native\Microsoft.UI.Xaml.dll" />
+
+    <!-- XAML assets that need to be copied -->
+    <PackagesContent Include="$(NuGetPackageRoot)Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\**\*.xaml" />
+    <PackagesContent Include="$(NuGetPackageRoot)Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\**\*.xbf" />
+    <PackagesContent Include="$(NuGetPackageRoot)Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\**\*.xr.xml" />
+    <PackagesContent Include="$(NuGetPackageRoot)Microsoft.UI.Xaml\2.1.190218001-prerelease\lib\uap10.0\**\*.xaml" />
+    <PackagesContent Include="$(NuGetPackageRoot)Microsoft.UI.Xaml\2.1.190218001-prerelease\lib\uap10.0\**\*.xbf" />
+    <PackagesContent Include="$(NuGetPackageRoot)Microsoft.UI.Xaml\2.1.190218001-prerelease\lib\uap10.0\**\*.xr.xml" />
+
+  </ItemGroup>
+
+  <Target Name="TweakNuGetPackageReferences" AfterTargets="ResolvePackageAssets">
+    <PropertyGroup>
+      <TweakNuGetPackageIds>@(TweakNuGetPackageId)</TweakNuGetPackageIds>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <!-- RuntimeCopyLocalItems -->
+      <_RuntimeCopyLocalItems Include="@(RuntimeCopyLocalItems)" Condition="$([System.String]::new('$(TweakNuGetPackageIds)').Contains('%(RuntimeCopyLocalItems.NuGetPackageId)'))" />
+      <RuntimeCopyLocalItems Remove="@(_RuntimeCopyLocalItems)" />
+      <RuntimeCopyLocalItems Include="@(_RuntimeCopyLocalItems->'%(RootDir)%(Directory)..\uap10.0.16299\%(Filename)%(Extension)')" />
+      <!-- ResolvedCompileFileDefinitions -->
+      <_ResolvedCompileFileDefinitions Include="@(ResolvedCompileFileDefinitions)" Condition="$([System.String]::new('$(TweakNuGetPackageIds)').Contains('%(ResolvedCompileFileDefinitions.NuGetPackageId)'))" />
+      <ResolvedCompileFileDefinitions Remove="@(_ResolvedCompileFileDefinitions)" />
+      <ResolvedCompileFileDefinitions Include="@(_ResolvedCompileFileDefinitions->'%(RootDir)%(Directory)..\uap10.0.16299\%(Filename)%(Extension)')">
+        <HintPath>%(RootDir)%(Directory)..\uap10.0.16299\%(Filename)%(Extension)</HintPath>
+      </ResolvedCompileFileDefinitions>
+    </ItemGroup>
+    
+  </Target>
+
+  <ItemGroup>
+    <None Include="@(IslandLibraryContent)">
+      <Link>$(IslandLibrary)\%(RecursiveDir)\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="@(PackagesContent)">
+      <Link>%(RecursiveDir)\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\BladeView\BladeView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\CameraPreview\CameraPreview.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\Carousel\Carousel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\DropShadowPanel\DropShadowPanel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\Expander\Expander.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\GridSplitter\GridSplitter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\HeaderedContentControl\HeaderedContentControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\HeaderedItemsControl\HeaderedItemsControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\HeaderedTextBlock\HeaderedTextBlock.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\ImageCropper\ImageCropper.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\ImageCropper\ImageCropperThumb.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\ImageEx\ImageEx.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\InAppNotification\InAppNotification.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\InAppNotification\Styles\MSEdgeNotificationStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\InAppNotification\Styles\VSCodeNotificationStyle.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\InfiniteCanvas\InfiniteCanvas.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\LayoutTransformControl\LayoutTransformControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\Loading\Loading.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\MarkdownTextBlock\MarkdownTextBlock.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\MasterDetailsView\MasterDetailsView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\Menu\Menu.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\OrbitView\OrbitView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\RadialGauge\RadialGauge.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\RadialProgressBar\RadialProgressBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\RangeSelector\RangeSelector.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\RemoteDevicePicker\RemoteDevicePicker.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\RotatorTile\RotatorTile.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\ScrollHeader\ScrollHeader.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\TabView\TabView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\TextToolbar\Symbols\Symbols.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\TextToolbar\TextToolbar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\TextToolbar\ToolbarItems\ToolbarButton.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\TextToolbar\ToolbarItems\ToolbarSeparator.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.Toolkit.Uwp.UI.Controls\5.1.1\lib\uap10.0.16299\Microsoft.Toolkit.Uwp.UI.Controls\TileControl\TileControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Update="C:\Users\micha\.nuget\packages\Microsoft.UI.Xaml\2.1.190218001-prerelease\lib\uap10.0\Microsoft.UI.Xaml\Themes\Generic.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+
+
+  <!-- WOKAROUND: .deps.json gets not published 
+                https://developercommunity.visualstudio.com/content/problem/462646/referencing-native-winrt-component-in-net-core-wpf.html -->
+  <PropertyGroup>
+    <DesktopBridgePublishItemsOutputGroupDependsOn>
+      $(DesktopBridgePublishItemsOutputGroupDependsOn);
+      __IncludeProjectDepsFile
+    </DesktopBridgePublishItemsOutputGroupDependsOn>
+  </PropertyGroup>
+  <Target Name="__IncludeProjectDepsFile">
+    <ItemGroup>
+      <ResolvedFileToPublish Include="$(ProjectDepsFilePath)">
+        <RelativePath>$(ProjectDepsFileName)</RelativePath>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
+
+</Project>

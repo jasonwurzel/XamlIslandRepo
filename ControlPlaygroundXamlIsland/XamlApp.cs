@@ -10,8 +10,10 @@ namespace WpfApp
     {
         public XamlApp()
         {
-            MetadataProviders.Add(new UwpLib.UwpLib_XamlTypeInfo.XamlMetaDataProvider());
+            MetadataProviders.Add(new ControlPlaygroundUwpLib.ControlPlaygroundUwpLib_XamlTypeInfo.XamlMetaDataProvider());
             //Resources = new WUX.ResourceDictionary { Source = new Uri("ms-appx:///UwpLib/Styles/Styles.xaml") };
+            //Resources = new WUX.ResourceDictionary { Source = new Uri("ms-appx:///Magrathea.Presentation/Styles/MagratheaStyles.xaml") };
+
         }
     }
 }

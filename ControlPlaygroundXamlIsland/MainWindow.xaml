@@ -6,4 +6,7 @@
         xmlns:local="clr-namespace:WpfApp"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <TextBox Width="300" Background="Gray"></TextBox>
+    </Grid>
 </Window>
