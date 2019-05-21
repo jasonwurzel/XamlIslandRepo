@@ -1,4 +1,4 @@
-﻿namespace WpfApp
+﻿namespace ControlPlaygroundXamlIsland
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

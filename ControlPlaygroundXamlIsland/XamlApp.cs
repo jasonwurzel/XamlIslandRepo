@@ -1,7 +1,6 @@
 ﻿using Microsoft.Toolkit.Win32.UI.XamlHost;
-using WUX = Windows.UI.Xaml;
 
-namespace WpfApp
+namespace ControlPlaygroundXamlIsland
 {
     class XamlApp : XamlApplication
     {

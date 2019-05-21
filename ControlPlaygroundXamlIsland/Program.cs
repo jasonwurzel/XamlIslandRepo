@@ -1,9 +1,9 @@
-﻿using Microsoft.Toolkit.Wpf.UI.XamlHost;
-using System;
+﻿using System;
+using Microsoft.Toolkit.Wpf.UI.XamlHost;
 using Colors = System.Windows.Media.Colors;
 using SW = System.Windows;
 
-namespace WpfApp
+namespace ControlPlaygroundXamlIsland
 {
     static class Program
     {
@@ -27,7 +27,7 @@ namespace WpfApp
                     Content = new WindowsXamlHost()
                     {
                         SnapsToDevicePixels = true,
-                        Child = new UwpLib.RootPage(),
+                        Child = new ControlPlaygroundUwpLib.RootPage(),
                     }
                 };
                 wpfApp.Run(window);

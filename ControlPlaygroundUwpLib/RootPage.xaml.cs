@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using Windows.UI.Xaml.Controls;
-using ControlPlaygroundUwpLib;
+﻿using Windows.UI.Xaml.Controls;
 
-namespace UwpLib
+namespace ControlPlaygroundUwpLib
 {
     public sealed partial class RootPage
     {

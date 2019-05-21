@@ -7,7 +7,7 @@
     <UseWPF>true</UseWPF>
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <Platforms>x64</Platforms>
-    <StartupObject>WpfApp.Program</StartupObject>
+    <StartupObject>ControlPlaygroundXamlIsland.Program</StartupObject>
   </PropertyGroup>
 
   <!-- Always determine a runtime to make things (paths) deterministic -->
