@@ -3,7 +3,6 @@
   <PropertyGroup Condition="'$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '15.0'">
     <VisualStudioVersion>15.0</VisualStudioVersion>
   </PropertyGroup>
-
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -14,13 +13,10 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-
   <PropertyGroup>
     <WapProjPath Condition="'$(WapProjPath)'==''">$(MSBuildExtensionsPath)\Microsoft\DesktopBridge\</WapProjPath>
   </PropertyGroup>
-
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.props" />
-
   <PropertyGroup>
     <ProjectGuid>a69b4e8f-1c09-4cd0-84a8-57cb429a5515</ProjectGuid>
     <TargetPlatformVersion>10.0.$(WindowsTargetBuild).0</TargetPlatformVersion>
@@ -29,7 +25,6 @@
     <PackageCertificateKeyFile>ControlPlaygroundPackage_TemporaryKey.pfx</PackageCertificateKeyFile>
     <EntryPointProjectUniqueName>..\ControlPlaygroundXamlIsland\ControlPlaygroundXamlIsland.csproj</EntryPointProjectUniqueName>
   </PropertyGroup>
-
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
@@ -45,16 +40,15 @@
     <Content Include="Images\StoreLogo.png" />
     <Content Include="Images\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
-
   <ItemGroup>
-   <ProjectReference Include="..\ControlPlaygroundXamlIsland\ControlPlaygroundXamlIsland.csproj">
+    <ProjectReference Include="..\ControlPlaygroundXamlIsland\ControlPlaygroundXamlIsland.csproj">
       <DesktopBridgeSelfContained>True</DesktopBridgeSelfContained>
-      <DesktopBridgeIdentifier>$(DesktopBridgeRuntimeIdentifier)</DesktopBridgeIdentifier>
-      <Properties>SelfContained=%(DesktopBridgeSelfContained);RuntimeIdentifier=%(DesktopBridgeIdentifier)</Properties>
+      <DesktopBridgeIdentifier>win-x64</DesktopBridgeIdentifier>
+      <Properties>DesktopBridgeSelfContained=%(DesktopBridgeSelfContained);DesktopBridgeIdentifier=%(DesktopBridgeIdentifier)</Properties>
       <SkipGetTargetFrameworkProperties>True</SkipGetTargetFrameworkProperties>
     </ProjectReference>
   </ItemGroup>
-    <!-- WORKAROUND: At startup Microsoft.Graphics.Canvas.winmd is expected in the same directory as the .exe 
+  <!-- WORKAROUND: At startup Microsoft.Graphics.Canvas.winmd is expected in the same directory as the .exe 
                  (sideloaded: AppX\XamlIslandSample.Desktop). Duplicate the .winmd item 
                  https://developercommunity.visualstudio.com/content/problem/462646/referencing-native-winrt-component-in-net-core-wpf.html -->
   <Target Name="__CopyWinMDToProjectDir" BeforeTargets="_CopyPackageFiles">
@@ -73,7 +67,5 @@
       <UploadFile Include="@(DuplicatedUploadWinMDFiles)" />
     </ItemGroup>
   </Target>
-
   <Import Project="$(WapProjPath)\Microsoft.DesktopBridge.targets" />
-
 </Project>
